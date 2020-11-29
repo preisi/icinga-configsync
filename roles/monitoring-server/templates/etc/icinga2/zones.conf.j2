@@ -1,6 +1,7 @@
 {{ ansible_managed | comment }}
 
 object Endpoint {{ inventory_hostname | to_json }} {
+	// local endpoint
 }
 
 object Zone {{ inventory_hostname | to_json }} {
@@ -12,7 +13,7 @@ object Zone {{ inventory_hostname | to_json }} {
 {% if hostname != icinga2_master %}
 object Endpoint {{ hostname | to_json }} {
 	host = {{ hostname | to_json }}
-	log_duration = 0
+	log_duration = 0 // disable replay log
 }
 
 object Zone {{ hostname | to_json }} {
