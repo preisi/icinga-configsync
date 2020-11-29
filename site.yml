@@ -1,0 +1,8 @@
+---
+- hosts: monitoring_server
+  roles:
+    - role: monitoring-server
+
+- hosts: monitoring_client
+  roles:
+    - role: monitoring-client

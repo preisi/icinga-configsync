@@ -1,0 +1,91 @@
+{{ ansible_managed | comment }}
+
+template Service "generic-service" {
+	max_check_attempts = 5
+	check_interval = 1m
+	retry_interval = 30s
+}
+
+template Service "agent-service" {
+	import "generic-service"
+
+	zone = host.name
+}
+
+apply Service "icinga" {
+	import "agent-service"
+
+	check_command = "icinga"
+	assign where get_object("Endpoint", host.name) != null
+}
+
+apply Service "zone-health" {
+	import "generic-service"
+
+	check_command = "cluster-zone"
+	vars.cluster_zone = host.name
+
+	assign where get_object("Endpoint", host.name) != null
+	ignore where host.name == {{ icinga2_master | to_json }}
+}
+
+apply Dependency "zone-health-check" to Service {
+	parent_service_name = "zone-health"
+
+	states = [ OK ] // Fail if the parent service state switches to NOT-OK
+	disable_notifications = true
+
+	assign where get_object("Endpoint", host.name) != null
+	// Avoid a self reference from child to parent
+	ignore where service.name == "zone-health"
+	ignore where host.name == {{ icinga2_master | to_json }}
+}
+
+apply Service "disk" for (mount in host.vars.mountpoints){
+	import "agent-service"
+
+	check_command = "disk"
+	vars.disk_partitions = mount
+}
+
+apply Service "apt" {
+	import "agent-service"
+
+	check_command = "apt"
+	assign where true
+}
+
+apply Service "load" {
+	import "agent-service"
+
+	check_command = "load"
+	assign where true
+}
+
+apply Service "procs" {
+	import "agent-service"
+
+	check_command = "procs"
+	assign where true
+}
+
+apply Service "ssh" {
+	import "generic-service"
+
+	check_command = "ssh"
+	assign where true
+}
+
+apply Service "ping4" {
+	import "generic-service"
+
+	check_command = "ping4"
+	assign where true
+}
+
+apply Service "ping6" {
+	import "generic-service"
+
+	check_command = "ping6"
+	assign where true
+}

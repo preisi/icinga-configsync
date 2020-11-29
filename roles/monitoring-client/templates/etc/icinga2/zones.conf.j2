@@ -1,0 +1,22 @@
+{{ ansible_managed | comment }}
+
+object Endpoint {{ icinga2_master | to_json }} {
+}
+
+object Zone {{ icinga2_master | to_json }} {
+	endpoints = [ {{ icinga2_master | to_json }} ]
+}
+
+object Endpoint {{ inventory_hostname | to_json }} {
+	host = {{ inventory_hostname | to_json }}
+	log_duration = 0
+}
+
+object Zone {{ inventory_hostname | to_json }} {
+	endpoints = [ {{ inventory_hostname | to_json }} ]
+	parent = {{ icinga2_master | to_json }}
+}
+
+object Zone "global-templates" {
+	global = true
+}

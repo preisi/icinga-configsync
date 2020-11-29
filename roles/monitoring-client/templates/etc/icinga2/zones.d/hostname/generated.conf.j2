@@ -1,0 +1,13 @@
+{{ ansible_managed | comment }}
+
+object Host {{ inventory_hostname | to_json }} {
+	check_command = "hostalive"
+	address = {{ inventory_hostname | to_json }}
+	address6 = {{ inventory_hostname | to_json }}
+
+	check_interval = 1m
+	vars.mountpoints = {{ ansible_mounts | map(attribute="mount") | list | to_json }}
+
+	# ensure that hostalive check is performed on master
+	zone = {{ icinga2_master | to_json }}
+}

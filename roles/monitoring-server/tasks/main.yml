@@ -1,0 +1,38 @@
+---
+- name: Install packages for icinga master
+  apt:
+    name:
+      - icinga2
+      - monitoring-plugins
+
+- name: Setup icinga2 cluster
+  shell: >
+      icinga2 node setup
+      --zone {{ inventory_hostname }}
+      --listen 0.0.0.0,5665
+      --cn {{ inventory_hostname }}
+      --master
+      --disable-confd
+  args:
+    creates: /var/lib/icinga2/certs/ca.crt
+  register: icinga2_setup
+  
+- name: Restart icinga2
+  service:
+    name: icinga2
+    state: restarted
+  when: icinga2_setup.changed
+
+- name: Grab icinga2 master certificate
+  shell:
+    cmd: "cat /var/lib/icinga2/certs/{{ inventory_hostname }}.crt"
+  register: master_cert
+
+- name: Store icinga2 master certificate
+  set_fact:
+    icinga2_master_cert: "{{ master_cert.stdout }}"
+
+- name: Install zones.conf
+  template:
+    src: etc/icinga2/zones.conf.j2
+    dest: /etc/icinga2/zones.conf

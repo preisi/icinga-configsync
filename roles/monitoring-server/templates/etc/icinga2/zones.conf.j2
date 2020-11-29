@@ -1,0 +1,27 @@
+{{ ansible_managed | comment }}
+
+object Endpoint {{ inventory_hostname | to_json }} {
+}
+
+object Zone {{ inventory_hostname | to_json }} {
+	endpoints = [ {{ inventory_hostname | to_json }} ]
+}
+
+{% for host in groups['monitoring_client'] %}
+{%- set hostname = hostvars[host].inventory_hostname -%}
+{% if hostname != icinga2_master %}
+object Endpoint {{ hostname | to_json }} {
+	host = {{ hostname | to_json }}
+	log_duration = 0
+}
+
+object Zone {{ hostname | to_json }} {
+	endpoints = [ {{ hostname | to_json }} ]
+	parent = {{ inventory_hostname | to_json }}
+}
+{% endif %}
+{% endfor %}
+
+object Zone "global-templates" {
+	global = true
+}
