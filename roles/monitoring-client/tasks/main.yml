@@ -37,7 +37,6 @@
   template:
     src: etc/icinga2/zones.conf.j2
     dest: /etc/icinga2/zones.conf
-  when: inventory_hostname != icinga2_master
 
 - name: Ensure zones.d directories exists
   file:

@@ -31,8 +31,3 @@
 - name: Store icinga2 master certificate
   set_fact:
     icinga2_master_cert: "{{ master_cert.stdout }}"
-
-- name: Install zones.conf
-  template:
-    src: etc/icinga2/zones.conf.j2
-    dest: /etc/icinga2/zones.conf

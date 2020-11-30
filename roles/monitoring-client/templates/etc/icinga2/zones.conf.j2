@@ -1,22 +1,30 @@
 {{ ansible_managed | comment }}
 
-object Endpoint {{ icinga2_master | to_json }} {
-	host = {{ inventory_hostname | to_json }}
-	log_duration = 0 // disable replay log
-}
+{% if inventory_hostname == icinga2_master %}
+{% set hosts = groups['monitoring_client'] %}
+{% else %}
+{# This hostlist could be enhanced to enable satellites #}
+{% set hosts = [ inventory_hostname, icinga2_master ] %}
+{% endif %}
 
-object Zone {{ icinga2_master | to_json }} {
-	endpoints = [ {{ icinga2_master | to_json }} ]
-}
-
-object Endpoint {{ inventory_hostname | to_json }} {
+{%- for hostname in hosts -%}
+object Endpoint {{ hostname | to_json }} {
+{% if hostname == inventory_hostname %}
 	// local endpoint
+{% else %}
+	host = {{ hostname | to_json }}
+	log_duration = 0 // disable replay log
+{% endif %}
 }
 
-object Zone {{ inventory_hostname | to_json }} {
-	endpoints = [ {{ inventory_hostname | to_json }} ]
+object Zone {{ hostname | to_json }} {
+	endpoints = [ {{ hostname | to_json }} ]
+{% if hostname != icinga2_master %}
 	parent = {{ icinga2_master | to_json }}
+{% endif %}
 }
+
+{% endfor -%}
 
 object Zone "global-templates" {
 	global = true
