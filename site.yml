@@ -1,8 +1,4 @@
 ---
-- hosts: monitoring_server
+- hosts: icinga2
   roles:
-    - role: monitoring-server
-
-- hosts: monitoring_client
-  roles:
-    - role: monitoring-client
+    - role: icinga2
