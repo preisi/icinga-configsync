@@ -20,14 +20,13 @@
   shell: icinga2 pki ticket --cn {{ inventory_hostname }}
   register: icinga2_ticket
   delegate_to: "{{ icinga2_master }}"
-  args:
-    # ticket is only required for icinga2 node setup
-    creates: /var/lib/icinga2/certs/ca.crt
+  when: inventory_hostname != icinga2_master
 
 - name: Install icinga2 master certificate
   copy:
     content: "{{ hostvars[icinga2_master].icinga2_master_cert }}"
     dest: /var/cache/icinga2/trusted.crt
+  when: inventory_hostname != icinga2_master
 
 - name: Setup icinga2 node
   shell: >
@@ -43,6 +42,7 @@
       --disable-confd
   args:
     creates: /var/lib/icinga2/certs/ca.crt
+  when: inventory_hostname != icinga2_master
 
 - name: Create zones configuration
   template:
