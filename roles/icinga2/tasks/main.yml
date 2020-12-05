@@ -37,8 +37,7 @@
       when: icinga2_setup.changed
 
     - name: Read icinga2 master certificate
-      shell:
-        cmd: "cat /var/lib/icinga2/certs/{{ icinga2_master }}.crt"
+      shell: "cat /var/lib/icinga2/certs/{{ icinga2_master }}.crt"
       register: master_cert
       delegate_facts: yes
       changed_when: no
@@ -59,7 +58,7 @@
 - name: Setup icinga2 node
   block:
     - name: Generate ticket on icinga2_master
-      shell: icinga2 pki ticket --cn {{ inventory_hostname }}
+      shell: "icinga2 pki ticket --cn {{ inventory_hostname }}"
       register: icinga2_ticket
       delegate_to: "{{ icinga2_master }}"
 
