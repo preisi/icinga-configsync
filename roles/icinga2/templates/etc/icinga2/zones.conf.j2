@@ -1,7 +1,7 @@
 {{ ansible_managed | comment }}
 
 {% if inventory_hostname == icinga2_master %}
-{% set hosts = groups['monitoring_client'] %}
+{% set hosts = groups['icinga2'] %}
 {% else %}
 {# This hostlist could be enhanced to enable satellites #}
 {% set hosts = [ inventory_hostname, icinga2_master ] %}
